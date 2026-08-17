@@ -1,4 +1,107 @@
-# FAILURES.md — Known Failure Modes & Edge Cases
+# LinkPlease Assignment — Submission & Failure Modes
+
+## 1. Submission Payload (`POST /v1/submit`)
+
+```json
+{
+  "email": "maheshmulaguri13@gmail.com",
+  "github_repo": "https://github.com/MaheshChowdary593/Link_please",
+  "working_url": "https://linkplease-dm-service.onrender.com",
+  "loom_url": "https://loom.com/share/your-loom-link",
+  "parts_completed": "A+B+C",
+  "start_date": "2026-08-17"
+}
+```
+
+---
+
+## 2. API Contract JSON Payloads
+
+### `POST /webhook`
+**Incoming Event Payload:**
+```json
+{
+  "event_id": "evt_01J8ZQ4K2N7RXA",
+  "event_type": "comment.created",
+  "sent_at": "2026-08-10T09:14:22.481Z",
+  "data": {
+    "comment_id": "cmt_9f2a7c",
+    "post_id": "post_44de1b",
+    "text": "PRICE please 🙏",
+    "created_at": "2026-08-10T09:14:21.900Z",
+    "from": {
+      "user_id": "usr_3b91fe",
+      "username": "arjun.shoots"
+    }
+  }
+}
+```
+**Response (200 OK):**
+```json
+{
+  "status": "ok"
+}
+```
+
+### `POST /rules`
+**Request Payload:**
+```json
+{
+  "keyword": "PRICE",
+  "dm_message": "Here is the price list: $99"
+}
+```
+**Response (201 Created):**
+```json
+{
+  "rule_id": "rule_890dfdf03a47",
+  "keyword": "PRICE",
+  "dm_message": "Here is the price list: $99"
+}
+```
+
+### `GET /stats`
+**Response (200 OK):**
+```json
+{
+  "sent": 13,
+  "failed": 0,
+  "queued": 66,
+  "duplicates_blocked": 47
+}
+```
+
+### `POST /v1/dm/send` (Mock API Outbound)
+**Request Payload:**
+```json
+{
+  "recipient_user_id": "usr_3b91fe",
+  "message": "Here is the price list: $99",
+  "comment_id": "cmt_9f2a7c"
+}
+```
+**Response (200 / 202 Accepted):**
+```json
+{
+  "dm_id": "dm_7c1f0a",
+  "status": "queued"
+}
+```
+
+### `GET /v1/dm/{dm_id}` (Mock API Reconciliation Status)
+**Response (200 OK):**
+```json
+{
+  "dm_id": "dm_7c1f0a",
+  "status": "delivered",
+  "recipient_user_id": "usr_3b91fe",
+  "updated_at": "2026-08-10T09:14:31.002Z"
+}
+```
+
+---
+
+## 3. Known Failure Modes & Edge Cases
 
 Here are the 4 honest failure modes under which our system can still lose a DM, send a duplicate, or report a wrong number:
 
@@ -16,7 +119,7 @@ Here are the 4 honest failure modes under which our system can still lose a DM, 
 
 ---
 
-## Technical Mitigations Included
+## 4. Technical Mitigations Included
 - **SQLite WAL Mode & `UNIQUE(user_id, rule_id)`**: Enforces strict single DM per user per rule across standard runs.
 - **Sliding Window Rate Limiter (9 req / 60s)**: Safely stays below the 10 req/60s limit with automatic pause on `429 Retry-After`.
 - **Idempotency Header**: Every `POST /v1/dm/send` includes `Idempotency-Key: dm_{user_id}_{rule_id}` to prevent mock API double-sending.
