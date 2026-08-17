@@ -4,7 +4,8 @@ import logging
 import httpx
 from collections import deque
 from typing import Optional, Dict, Any
-from config import API_KEY, MOCK_API_BASE_URL
+from config import MOCK_API_BASE_URL
+import config
 from db import get_db
 
 logger = logging.getLogger(__name__)
@@ -114,7 +115,7 @@ class DMSender:
 
         url = f"{MOCK_API_BASE_URL}/v1/dm/send"
         headers = {
-            "X-API-Key": API_KEY,
+            "X-API-Key": config.get_api_key(),
             "Idempotency-Key": idempotency_key,
             "Content-Type": "application/json"
         }
@@ -152,7 +153,7 @@ class DMSender:
             try:
                 response = await self.client.post(url, headers=headers, json=payload)
                 
-                if response.status_code == 202:
+                if response.status_code in (200, 202):
                     data = response.json()
                     dm_id = data.get("dm_id")
                     logger.info(f"DM send accepted for user {user_id}, dm_id={dm_id}")

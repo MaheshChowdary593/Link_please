@@ -2,7 +2,8 @@ import asyncio
 import logging
 import httpx
 from typing import Optional
-from config import API_KEY, MOCK_API_BASE_URL
+from config import MOCK_API_BASE_URL
+import config
 from db import get_db
 from dm_sender import dm_sender
 
@@ -49,7 +50,7 @@ class StatusReconciler:
         if not pending_dms:
             return
 
-        headers = {"X-API-Key": API_KEY}
+        headers = {"X-API-Key": config.get_api_key()}
 
         for dm_item in pending_dms:
             dm_id = dm_item['dm_id']
