@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_api_key():
-    return os.getenv("API_KEY", "")
+    return os.getenv("API_KEY", "").strip().strip('"').strip("'")
 
 def get_verify_signature():
     return os.getenv("VERIFY_SIGNATURE", "true").lower() in ("true", "1", "yes")

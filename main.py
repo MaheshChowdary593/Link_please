@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException, Header, status
 from pydantic import BaseModel, Field
 
-from config import PORT, API_KEY, VERIFY_SIGNATURE
+from config import PORT
+import config
 from db import init_db
 from rules import rule_manager
 from stats import stats_manager
@@ -54,7 +55,7 @@ async def handle_webhook(
     raw_body = await request.body()
 
     # Verify signature if enabled and API_KEY is set
-    if VERIFY_SIGNATURE and API_KEY:
+    if config.get_verify_signature() and config.get_api_key():
         if not x_pseudogram_signature or not verify_signature(raw_body, x_pseudogram_signature):
             logger.warning("Rejecting webhook due to invalid signature.")
             raise HTTPException(status_code=403, detail="Invalid signature")
