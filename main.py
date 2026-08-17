@@ -48,16 +48,18 @@ class RuleCreateRequest(BaseModel):
     dm_message: str = Field(..., description="Message to DM the user")
 
 @app.post("/webhook", status_code=status.HTTP_200_OK)
-async def handle_webhook(
-    request: Request,
-    x_pseudogram_signature: str = Header(None, alias="X-PseudoGram-Signature")
-):
+async def handle_webhook(request: Request):
     raw_body = await request.body()
+    sig_header = (
+        request.headers.get("x-pseudogram-signature") or 
+        request.headers.get("X-PseudoGram-Signature") or 
+        ""
+    )
 
     # Verify signature if enabled and API_KEY is set
     if config.get_verify_signature() and config.get_api_key():
-        if not x_pseudogram_signature or not verify_signature(raw_body, x_pseudogram_signature):
-            logger.warning("Rejecting webhook due to invalid signature.")
+        if not sig_header or not verify_signature(raw_body, sig_header):
+            logger.warning(f"Rejecting webhook due to invalid signature. Received header: '{sig_header}'")
             raise HTTPException(status_code=403, detail="Invalid signature")
 
     try:
