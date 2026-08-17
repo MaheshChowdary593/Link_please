@@ -7,8 +7,7 @@
   "email": "maheshmulaguri13@gmail.com",
   "github_repo": "https://github.com/MaheshChowdary593/Link_please",
   "working_url": "https://linkplease-dm-service.onrender.com",
-  "loom_url": "https://loom.com/share/your-loom-link",
-  "parts_completed": "A+B+C",
+  "loom_url": "https://drive.google.com/file/d/1D4-TJf_FTJwhn3uynKwnL-Cj1Z2HPM2V/view?usp=sharing",
   "start_date": "2026-08-17"
 }
 ```
