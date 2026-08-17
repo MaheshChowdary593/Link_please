@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: linkplease-service
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MOCK_API_BASE_URL
+        value: https://pseudogram-api.onrender.com
+      - key: VERIFY_SIGNATURE
+        value: "true"
+      - key: DB_PATH
+        value: app.db
